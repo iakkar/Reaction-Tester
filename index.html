@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Your Reactions</title>
+    <style>
+        body {
+            max-width: 750px;
+            margin: 0 auto;
+            font-family: 'Courier New', Courier, monospace;
+
+            h2, p {
+                text-align: center;
+            }
+
+            button {
+                display: block;
+                margin: 10px auto;
+            }
+
+            #end {
+                display: none;
+            }
+
+            #play-area {
+                position: relative;;
+                min-width: 500px;
+                min-height: 450px;
+                background-color: beige;
+                margin: 0 auto;
+            }
+
+            #extra-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Test Your Reactions</h2>
+    <p>Click on the boxes and circles as quickly as you can!</p>
+    <p>Your time: <span id="time-info">0</span> seconds</p>
+    <button id="start">Start game!</button>
+    <button id="end">End game</button>
+
+    <div id="play-area"></div>
+
+    <p id="extra-info">
+        Total Time: <span id="total-time"></span> seconds <br>
+        Mean: <span id="mean-clicks"></span> blocks per second
+    </p>
+
+    <script>
+        const start = document.getElementById("start");
+        const end = document.getElementById("end");
+        const playArea = document.getElementById("play-area");
+        const timerInfo = document.getElementById("time-info");
+        const extraInfo = document.getElementById("extra-info");
+        const totalTimeSpan = document.getElementById("total-time");
+        const meanClicksSpan = document.getElementById("mean-clicks");
+
+        let blocksClicked = 0;
+        let totalTime = 0;
+
+        function spawnBlock (width, height) {
+            let startTime = new Date().getTime() / 1000;
+
+            playArea.innerHTML = '';
+
+            let block = document.createElement("div");
+
+            let widthHeight = `${Math.floor(Math.random()*height*0.4 + height*0.1)}px`;
+
+            block.style.width = widthHeight;
+            block.style.height = widthHeight;
+
+            if (Math.random() < 0.5) {              //spawn circle
+                block.style.borderRadius = "50%";
+            }
+
+            block.style.backgroundColor = `rgb(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)})`
+
+            block.style.cursor = "pointer";
+
+            block.style.position = "absolute";
+
+            // console.log(Math.floor(Math.random()*(parseInt(width) - parseInt(widthHeight)/2) + (parseInt(widthHeight)/2)));
+
+            block.style.left = `${Math.floor(Math.random()*(parseInt(width) - parseInt(widthHeight)))}px`;
+            block.style.top = `${Math.floor(Math.random()*(parseInt(height) - parseInt(widthHeight)))}px`;
+
+            block.addEventListener ('click', () => {
+                let endTime = new Date().getTime() / 1000;
+                totalTime += endTime - startTime;
+
+                blocksClicked++;
+
+                timerInfo.innerText = `${Math.round((endTime - startTime + Number.EPSILON) * 100) / 100}`;
+
+                spawnBlock(width, height);
+            });
+
+            playArea.appendChild(block);
+
+        }
+
+        start.addEventListener ('click', () => {
+            start.style.display = "none";
+            end.style.display = "block";
+
+            let playWidth = playArea.getBoundingClientRect().width;
+            let playHeight = playArea.getBoundingClientRect().height;
+
+            // console.log(playArea.getBoundingClientRect());
+
+            spawnBlock(playWidth, playHeight);
+        })
+
+        end.addEventListener ('click', () => {
+            end.style.display = "none";
+            start.style.display = "block";
+
+            playArea.innerText = '';
+
+            extraInfo.style.display = "block";
+            totalTimeSpan.innerText = Math.round((totalTime + Number.EPSILON) * 100) / 100;
+            meanClicksSpan.innerText = Math.round((blocksClicked / (totalTime + 0.0000000000001) + Number.EPSILON) * 100) / 100;
+
+            blocksClicked = 0;
+            totalTime = 0;
+
+
+        })
+    </script>
+</body>
+</html>
